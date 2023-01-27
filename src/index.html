@@ -2,16 +2,52 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-    <link rel="stylesheet" type="text/css" href="style.css" />
-    <title>{{name}}'s piMI</title>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css">
+  <script language="javascript" type="text/javascript" charset="utf8"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script language="javascript" type="text/javascript" charset="utf8"
+    src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+  <script language="javascript" type="text/javascript" charset="utf8"
+    src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
+
+  <title>{{name}}'s piMI</title>
 </head>
 
 <body>
-    <p>Test</p>
+  <header>
+    <picture selectable="false" draggable="false">
+      <source selectable="false" draggable="false" srcset="/img/piMI.webp" type="image/webp">
+      <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
+      <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
+    </picture>
+    <div id="area" class="epoch category10" style="height: 200px;"></div>
+  </header>
+  <div id="manage">
+    <form action='/manage' method='post' target="hiddenFrame">
+      <input style="display:none;" id="action" name="action" value=""></input>
+      <button onclick="document.getElementById('action').value = 'Short';" type="submit"> Short Press </button>
+      <button onclick="document.getElementById('action').value = 'Long';" type="submit"> Long Press </button>
+      <button onclick="document.getElementById('action').value = 'Reset';" type="submit"> Reset </button>
+    </form>
+    <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+  </div>
 </body>
+
+<script>
+var data = [
+  { label: 'Layer 1', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2} ] },
+  { label: 'Layer 2', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 4} ] }
+];
+var areaChartInstance = $('#area').epoch({
+    type: 'area',
+    data: data,
+    axes: ['left', 'right', 'bottom']
+});
+</script>
 
 </html>
