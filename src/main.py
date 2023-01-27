@@ -3,7 +3,7 @@ from phew.template import render_template
 from phew.server import file_exists, serve_file
 
 from secret import ssid, password
-from config import name
+from config import name, threads
 from serial import bufferSTDIN
 
 connect_to_wifi(ssid, password)
@@ -11,7 +11,7 @@ connect_to_wifi(ssid, password)
 # Main page
 @server.route("/", methods=["GET"])
 def index(request):
-    return render_template("index.html", name=name), 200
+    return render_template("index.html", name=name, threads=threads), 200
 
 # Manage PC commands
 @server.route("/manage", methods=["POST"])
