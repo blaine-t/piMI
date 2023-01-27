@@ -7,13 +7,8 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
   <link rel="stylesheet" type="text/css" href="style.css" />
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
-  <script language="javascript" type="text/javascript" charset="utf8"
-    src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-  <script language="javascript" type="text/javascript" charset="utf8"
-    src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
-  <script language="javascript" type="text/javascript" charset="utf8"
-    src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <title>{{name}}'s piMI</title>
 </head>
@@ -25,7 +20,20 @@
       <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
       <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
     </picture>
-    <div id="areaChart" class="epoch category20" style="width: 800px; height: 200px"></div>
+    <div>
+      <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
+      </canvas>
+      <canvas id="ramUsageGraph" aria-label="RAM Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the RAM Usage Graph.</p>
+      </canvas>
+      <canvas id="netUsageGraph" aria-label="Network Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the Network Usage Graph.</p>
+      </canvas>
+      <canvas id="dskUsageGraph" aria-label="Disk Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the Disk Usage Graph.</p>
+      </canvas>
+    </div>
   </header>
   <div id="manage">
     <form action='/manage' method='post' target="hiddenFrame">
@@ -39,98 +47,25 @@
 </body>
 
 <script>
-  var areaChartData = [
-    // The first layer
-    {
-      label: "Layer 1",
-      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 110 }]
-    },
+  const cpuUsageGraph = document.getElementById('cpuUsageGraph');
 
-    // The second layer
-    {
-      label: "Layer 2",
-      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 120 }]
+  new Chart(cpuUsageGraph, {
+    type: 'line',
+    data: {
+      labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+      datasets: [{
+        label: '# of Votes',
+        data: [12, 19, 3, 5, 2, 3],
+        borderWidth: 1
+      }]
     },
-
-    {
-      label: "Layer 3",
-      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 130 }]
-    },
-
-    {
-      label: "Layer 4",
-      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 140 }]
-    },
-
-    // The first layer
-    {
-      label: "Layer 5",
-      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 150 }]
-    },
-
-    // The second layer
-    {
-      label: "Layer 6",
-      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 160 }]
-    },
-
-    {
-      label: "Layer 7",
-      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 170 }]
-    },
-
-    {
-      label: "Layer 8",
-      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 180 }]
-    },
-
-    // The first layer
-    {
-      label: "Layer 9",
-      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 190 }]
-    },
-
-    // The second layer
-    {
-      label: "Layer 10",
-      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 200 }]
-    },
-
-    {
-      label: "Layer 11",
-      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 210 }]
-    },
-
-    {
-      label: "Layer 12",
-      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 220 }]
-    },
-
-    // The first layer
-    {
-      label: "Layer 13",
-      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 230 }]
-    },
-
-    // The second layer
-    {
-      label: "Layer 14",
-      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 240 }]
-    },
-
-    {
-      label: "Layer 15",
-      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 250 }]
-    },
-
-    {
-      label: "Layer 16",
-      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 260 }]
-    },
-  ];
-  $('#areaChart').epoch({
-    type: 'time.area',
-    data: areaChartData
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
   });
 </script>
 
