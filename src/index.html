@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
   <link rel="stylesheet" type="text/css" href="style.css" />
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/css/epoch.min.css" />
   <script language="javascript" type="text/javascript" charset="utf8"
     src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
   <script language="javascript" type="text/javascript" charset="utf8"
@@ -25,7 +25,7 @@
       <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
       <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
     </picture>
-    <div id="area" class="epoch category10" style="height: 200px;"></div>
+    <div id="areaChart" class="epoch category20" style="width: 800px; height: 200px"></div>
   </header>
   <div id="manage">
     <form action='/manage' method='post' target="hiddenFrame">
@@ -39,15 +39,99 @@
 </body>
 
 <script>
-var data = [
-  { label: 'Layer 1', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 2} ] },
-  { label: 'Layer 2', values: [ {x: 0, y: 0}, {x: 1, y: 1}, {x: 2, y: 4} ] }
-];
-var areaChartInstance = $('#area').epoch({
-    type: 'area',
-    data: data,
-    axes: ['left', 'right', 'bottom']
-});
+  var areaChartData = [
+    // The first layer
+    {
+      label: "Layer 1",
+      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 110 }]
+    },
+
+    // The second layer
+    {
+      label: "Layer 2",
+      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 120 }]
+    },
+
+    {
+      label: "Layer 3",
+      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 130 }]
+    },
+
+    {
+      label: "Layer 4",
+      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 140 }]
+    },
+
+    // The first layer
+    {
+      label: "Layer 5",
+      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 150 }]
+    },
+
+    // The second layer
+    {
+      label: "Layer 6",
+      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 160 }]
+    },
+
+    {
+      label: "Layer 7",
+      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 170 }]
+    },
+
+    {
+      label: "Layer 8",
+      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 180 }]
+    },
+
+    // The first layer
+    {
+      label: "Layer 9",
+      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 190 }]
+    },
+
+    // The second layer
+    {
+      label: "Layer 10",
+      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 200 }]
+    },
+
+    {
+      label: "Layer 11",
+      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 210 }]
+    },
+
+    {
+      label: "Layer 12",
+      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 220 }]
+    },
+
+    // The first layer
+    {
+      label: "Layer 13",
+      values: [{ time: 1674797025, y: 100 }, { time: 1674797030, y: 230 }]
+    },
+
+    // The second layer
+    {
+      label: "Layer 14",
+      values: [{ time: 1674797025, y: 78 }, { time: 1674797030, y: 240 }]
+    },
+
+    {
+      label: "Layer 15",
+      values: [{ time: 1674797025, y: 50 }, { time: 1674797030, y: 250 }]
+    },
+
+    {
+      label: "Layer 16",
+      values: [{ time: 1674797025, y: 80 }, { time: 1674797030, y: 260 }]
+    },
+  ];
+  $('#areaChart').epoch({
+    type: 'time.area',
+    data: areaChartData
+  });
 </script>
 
 </html>
