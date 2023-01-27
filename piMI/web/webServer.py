@@ -1,12 +1,11 @@
+# Phew web server imports
 from phew import server, connect_to_wifi
 from phew.template import render_template
 from phew.server import file_exists, serve_file
 
-from secret import ssid, password
-from config import name, threads
-from serial import bufferSTDIN
-
-connect_to_wifi(ssid, password)
+# Info required for connecting and hosting web server
+from piMI.user.secret import ssid, password
+from piMI.user.config import name, threads
 
 # Main page
 @server.route("/", methods=["GET"])
@@ -28,4 +27,9 @@ def catchall(request):
     
     return "Not found", 404
 
-server.run()
+
+def connectToWireless():
+    connect_to_wifi(ssid, password)
+
+def startServer():
+    server.run()

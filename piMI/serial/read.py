@@ -2,15 +2,14 @@
 # USB serial communication for the Raspberry Pi Pico (RD2040) using the second RD2040
 # thread/processor (written by Dorian Wiskow - Janaury 2021) 
 #
-from sys import stdin, exit
+from sys import stdin
 from _thread import start_new_thread
-from utime import sleep
 # 
 # global variables to share between both threads/processors
 # 
 bufferSize = 1024                 # size of circular buffer to allocate
 buffer = [' '] * bufferSize       # circuolar incomming USB serial data buffer (pre fill)
-bufferEcho = True                 # USB serial port echo incooming characters (True/False) 
+bufferEcho = True                 # USB serial port echo incoming characters (True/False) 
 bufferNextIn, bufferNextOut = 0,0 # pointers to next in/out character in circualr buffer
 terminateThread = False           # tell 'bufferSTDIN' function to terminate (True/False)
 #
@@ -32,7 +31,8 @@ def bufferSTDIN():
 # instantiate second 'background' thread on RD2040 dual processor to monitor and buffer
 # incomming data from 'stdin' over USB serial port using ‘bufferSTDIN‘ function (above)
 #
-bufferSTDINthread = start_new_thread(bufferSTDIN, ())
+def startSerialThread():
+    bufferSTDINthread = start_new_thread(bufferSTDIN, ())
 
 #
 # function to check if a byte is available in the buffer and if so, return it
