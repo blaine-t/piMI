@@ -1,5 +1,5 @@
-from piMI.serial.read import startSerialThread
-from piMI.web.webServer import connectToWireless, startServer
+from serial.read import startSerialThread
+from web.webServer import connectToWireless, startServer
 
 startSerialThread()
 connectToWireless()

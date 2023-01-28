@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 # Remove personalized info
-/src/secret.py
-/src/config.py
+/piMI/web/secret.py
+/piMI/web/config.py
