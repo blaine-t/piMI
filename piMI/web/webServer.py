@@ -4,8 +4,8 @@ from phew.template import render_template
 from phew.server import file_exists, serve_file
 
 # Info required for connecting and hosting web server
-from piMI.user.secret import ssid, password
-from piMI.user.config import name, threads
+from web.secret import ssid, password
+from web.config import name, threads
 
 # Main page
 @server.route("/", methods=["GET"])
