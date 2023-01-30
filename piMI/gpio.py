@@ -14,7 +14,7 @@ rstPin.value(0)
 # "Press" power button for 1 second
 async def shortPress():
     # If statement to ensure that shortPress() doesn't cut longPress() short
-    if(pwrPin.value() == 0):
+    if pwrPin.value() == 0:
         pwrPin.value(1)
         await sleep(1)
         pwrPin.value(0)
