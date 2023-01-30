@@ -1,1 +1,2 @@
-python3 dool --cpu-use --mem --net --disk --nocolor --noheaders --integer | bash convert.sh
+#!/bin/sh
+python3 dool --cpu-use --mem --net --disk --nocolor --noheaders --integer 5 | bash convert.sh
