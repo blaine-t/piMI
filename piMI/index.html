@@ -45,14 +45,6 @@
 <script>
   // Establish WS
   var ws = new WebSocket("ws://" + location.hostname); // Possibly update to wss:// later
-  ws.onmessage = function (evt) {
-    var list = JSON.parse(evt.data);
-    for (var i = 0; i < list.length; i++) {
-      console.log(list[i]);
-    }
-  };
-
-  const cpuUsageGraph = document.getElementById('cpuUsageGraph');
 
   const cpus = [];
   const threads = 8; // Switch to static int when using off pico
@@ -60,14 +52,19 @@
     cpus.push({
       label: "CPU" + thread,
       data: [],
-      fill: true
+      fill: 'stack'
     });
   }
 
-  new Chart(cpuUsageGraph, {
+  const cpuUsageGraph = document.getElementById('cpuUsageGraph');
+  const ramUsageGraph = document.getElementById('ramUsageGraph');
+  const netUsageGraph = document.getElementById('netUsageGraph');
+  const dskUsageGraph = document.getElementById('dskUsageGraph');
+
+  const cpuUsageGraphChart = new Chart(cpuUsageGraph, {
     type: 'line',
     data: {
-      labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
       datasets: cpus
     },
     options: {
@@ -78,6 +75,137 @@
       }
     }
   });
+
+  const ramUsageGraphChart = new Chart(ramUsageGraph, {
+    type: 'line',
+    data: {
+      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      datasets: [
+        {
+          label: "Used",
+          data: [],
+          fill: true
+        }, {
+          label: "Free",
+          data: [],
+          fill: true
+        }, {
+          label: "Cache",
+          data: [],
+          fill: true
+        }, {
+          label: "Available",
+          data: [],
+          fill: true
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  const netUsageGraphChart = new Chart(netUsageGraph, {
+    type: 'line',
+    data: {
+      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      datasets: [
+        {
+          label: "Recv",
+          data: [],
+          fill: true
+        }, {
+          label: "Send",
+          data: [],
+          fill: true
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  const dskUsageGraphChart = new Chart(dskUsageGraph, {
+    type: 'line',
+    data: {
+      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      datasets: [
+        {
+          label: "Read",
+          data: [],
+          fill: true
+        }, {
+          label: "Write",
+          data: [],
+          fill: true
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Allows pushing new data to chart
+  function addData(chart, list, stacked) {
+    console.log(list.length)
+    for (var i = 0; i < list.length; i++) {
+      console.log(i)
+      console.log(chart.data.datasets[i])
+      // Make sure to not overfill graph
+      length = chart.data.datasets[i].data.length
+      if (length >= 10) {
+        chart.data.datasets[i].data.shift();
+      }
+      // Add stacked support
+      if (stacked) {
+        value = 0;
+        for (var j = 0; j <= i; j++) {
+          value += list[j]
+        }
+        chart.data.datasets[i].data.push(value)
+      } else {
+        chart.data.datasets[i].data.push(list[i])
+      }
+    }
+    chart.update();
+  }
+
+  ws.onmessage = function (evt) {
+    // Get list from WS
+    var list = JSON.parse(evt.data);
+
+    // Make sure that the amount of threads is correct by checking if just the extra data is left
+    if (list.length - threads != 8) {
+      // TODO: Add error handling
+      return
+    }
+
+    // Update CPU graph
+    addData(cpuUsageGraphChart, list.slice(0, threads), true);
+
+    // Update RAM graph
+    addData(ramUsageGraphChart, list.slice(threads, threads + 4), false);
+
+    // Update NET graph
+    addData(netUsageGraphChart, list.slice(threads + 4, threads + 6), false);
+
+    // Update DSK graph
+    addData(dskUsageGraphChart, list.slice(threads + 6, threads + 8), false);
+  };
 </script>
 
 </html>
