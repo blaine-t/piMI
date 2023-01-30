@@ -60,7 +60,7 @@ class WebSocketServer:
             websocket_helper.server_handshake(cl)
         except OSError:
             # Not a websocket connection, serve webpage
-            self._serve_page(cl)
+            self._serve_page(cl, self._page)
             return
 
         self._clients.append(self._make_client(WebSocketConnection(remote_addr, cl, self.remove_connection)))
@@ -69,13 +69,13 @@ class WebSocketServer:
         return WebSocketClient(conn)
 
     # Serve the webpage
-    def _serve_page(self, sock):
+    def _serve_page(self, sock, page):
         try:
-            sock.sendall('HTTP/1.1 200 OK\nConnection: close\nServer: WebSocket Server\nContent-Type: text/html\n')
-            length = os.stat(self._page)[6]
+            sock.sendall('HTTP/1.1 200 OK\nConnection: close\nServer: piMI\nContent-Type: text/html\n')
+            length = os.stat(page)[6]
             sock.sendall('Content-Length: {}\n\n'.format(length))
             # Process page by lines to avoid large strings
-            with open(self._page, 'r') as f:
+            with open(page, 'r') as f:
                 for line in f:
                     sock.sendall(line)
         except OSError:

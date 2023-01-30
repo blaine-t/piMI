@@ -13,7 +13,7 @@ spoll.register(stdin,POLLIN)
 async def listen(server):
     # Create a variable to hold until buffer read
     data = ""
-    byte = ""
+    byte = "\n"
     # Refactor a bit for increased performance
     while True:
         # If serial data is ready to be read

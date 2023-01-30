@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-  <link rel="stylesheet" type="text/css" href="style.css" />
+  <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -15,11 +15,11 @@
 
 <body>
   <header>
-    <picture selectable="false" draggable="false">
+    <!-- <picture selectable="false" draggable="false">
       <source selectable="false" draggable="false" srcset="/img/piMI.webp" type="image/webp">
       <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
       <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
-    </picture>
+    </picture> -->
     <div>
       <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
         <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
@@ -52,12 +52,10 @@
     }
   };
 
-
-
   const cpuUsageGraph = document.getElementById('cpuUsageGraph');
 
   const cpus = [];
-  const threads = 12; // Switch to static int when using off pico
+  const threads = 8; // Switch to static int when using off pico
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
       label: "CPU" + thread,
