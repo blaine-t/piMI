@@ -10,7 +10,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <title>{{name}}'s piMI</title>
+  <title>piMI</title>
 </head>
 
 <body>
@@ -36,21 +36,28 @@
     </div>
   </header>
   <div id="manage">
-    <form action='/manage' method='post' target="hiddenFrame">
-      <input style="display:none;" id="action" name="action" value=""></input>
-      <button onclick="document.getElementById('action').value = 'Short';" type="submit"> Short Press </button>
-      <button onclick="document.getElementById('action').value = 'Long';" type="submit"> Long Press </button>
-      <button onclick="document.getElementById('action').value = 'Reset';" type="submit"> Reset </button>
-    </form>
-    <iframe name="hiddenFrame" width="0" height="0" border="0" style="display: none;"></iframe>
+    <button onclick="ws.send('short');"> Short Press </button>
+    <button onclick="ws.send('long');"> Long Press </button>
+    <button onclick="ws.send('reset');"> Reset </button>
   </div>
 </body>
 
 <script>
+  // Establish WS
+  var ws = new WebSocket("ws://" + location.hostname); // Possibly update to wss:// later
+  ws.onmessage = function (evt) {
+    var list = JSON.parse(evt.data);
+    for (var i = 0; i < list.length; i++) {
+      console.log(list[i]);
+    }
+  };
+
+
+
   const cpuUsageGraph = document.getElementById('cpuUsageGraph');
 
   const cpus = [];
-  const threads = {{threads}}; // Switch to static int when using off pico
+  const threads = 12; // Switch to static int when using off pico
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
       label: "CPU" + thread,
