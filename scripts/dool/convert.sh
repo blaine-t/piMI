@@ -11,6 +11,7 @@ while IFS='$\n' read -r line; do
 
     cleanInput=$(echo $input | tr '|│' ' ' | sed 's/  */ /g')   # Clean up
     length=$(echo $cleanInput | grep -o ' ' | wc -l)            # Get the number of fields for the loop
+    length=$((length + 1))
 
     echo -n [   # Start the square brackets
 
