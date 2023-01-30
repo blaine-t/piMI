@@ -10,21 +10,23 @@ from uasyncio import sleep
 spoll=poll()
 spoll.register(stdin,POLLIN)
 
-async def listen():
+async def listen(server):
     # Create a variable to hold until buffer read
     data = ""
+    byte = ""
+    # Refactor a bit for increased performance
     while True:
         # If serial data is ready to be read
-        if (spoll.poll(0)):
+        if spoll.poll(0) or byte != "\n":
             # Read one byte at a time and append it to data
             byte = stdin.read(1)
             data += byte
         # If no serial data ready to read
         else:
             # If there is data in buffer
-            if (data != ""):
+            if data != "":
                 # Send it to websocket
-                print(data)
+                server.process_all(data)
                 # Clear buffer
                 data = ""
             # Async wait half a second to allow other processes to run
