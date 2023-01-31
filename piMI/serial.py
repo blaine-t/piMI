@@ -14,14 +14,15 @@ async def listen(server):
     # Create a variable to hold until buffer read
     data = ""
     byte = "\n"
-    # Refactor a bit for increased performance
     while True:
         # If serial data is ready to be read
-        if spoll.poll(0) or byte != "\n":
+        if spoll.poll(0):
             # Read one byte at a time and append it to data
             byte = stdin.read(1)
             data += byte
         # If no serial data ready to read
+        elif byte != "\n":
+            await sleep(0.2) # Wait 200ms for computer's serial write to finish
         else:
             # If there is data in buffer
             if data != "":
