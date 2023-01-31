@@ -109,7 +109,7 @@
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
       label: "CPU" + thread,
-      data: [thread*50 + 50, thread*20 + 20,thread*80 + 80,thread*40 + 40,thread*0 + 0,thread*100 + 100,thread*25 + 25,], //REPLACE BEFORE PUSH
+      data: [thread * 50 + 50, thread * 20 + 20, thread * 80 + 80, thread * 40 + 40, thread * 0 + 0, thread * 100 + 100, thread * 25 + 25,], //REPLACE BEFORE PUSH
       borderColor: lineColors[thread],
       backgroundColor: colors[thread],
       fill: 'stack'
@@ -140,79 +140,74 @@
   });
 
   const ramUsageGraphChart = new Chart(ramUsageGraph, {
-    type: 'line',
+    type: 'doughnut',
     data: {
-      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      labels: ["Used", "Free", "Cache"],
       datasets: [
         {
-          label: "Used",
-          data: [],
-          fill: true
-        }, {
-          label: "Free",
-          data: [],
-          fill: true
-        }, {
-          label: "Cache",
-          data: [],
+          label: "Current",
+          data: [50, 60, 40],
           fill: true
         }
       ]
     },
     options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
     }
   });
 
   const netUsageGraphChart = new Chart(netUsageGraph, {
-    type: 'line',
+    type: 'bar',
     data: {
       labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
       datasets: [
         {
           label: "Recv",
-          data: [],
+          data: [50],
           fill: true
         }, {
           label: "Send",
-          data: [],
+          data: [-50],
           fill: true
         }
       ]
     },
     options: {
       scales: {
+        x: {
+          stacked: true
+        },
         y: {
-          beginAtZero: true
+          stacked: true
         }
       }
     }
   });
 
   const dskUsageGraphChart = new Chart(dskUsageGraph, {
-    type: 'line',
+    type: 'bar',
     data: {
       labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
       datasets: [
         {
           label: "Read",
-          data: [],
+          data: [80],
           fill: true
         }, {
           label: "Write",
-          data: [],
+          data: [-30],
           fill: true
         }
       ]
     },
     options: {
       scales: {
+        x: {
+          stacked: true
+        },
         y: {
-          beginAtZero: true
+          min: -100,
+          max: 100,
+          stacked: true
         }
       }
     }
