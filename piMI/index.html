@@ -11,6 +11,51 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <title>piMI</title>
+
+  <style>
+    html {
+      background-color: #1e1e2e;
+      color: #cdd6f4;
+    }
+
+    body {
+      width: fit-content;
+    }
+
+    .resize {
+      width: auto;
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .graph {
+      width: 50%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+    }
+
+    .button-container {
+      margin-left: auto;
+      margin-right: auto;
+      width: fit-content;
+    }
+
+    .button-container button {
+      background-color: #313244;
+      padding: 10px;
+      color: #cdd6f4;
+    }
+
+    @media (max-width: 600px) {
+      .resize {
+        width: 95vw;
+      }
+
+      .graph {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -20,22 +65,33 @@
       <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
       <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
     </picture> -->
-    <div>
-      <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
-        <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
-      </canvas>
-      <canvas id="ramUsageGraph" aria-label="RAM Usage Graph" role="img">
-        <p>Your browser does not support the canvas element for the RAM Usage Graph.</p>
-      </canvas>
-      <canvas id="netUsageGraph" aria-label="Network Usage Graph" role="img">
-        <p>Your browser does not support the canvas element for the Network Usage Graph.</p>
-      </canvas>
-      <canvas id="dskUsageGraph" aria-label="Disk Usage Graph" role="img">
-        <p>Your browser does not support the canvas element for the Disk Usage Graph.</p>
-      </canvas>
+    <div class="resize">
+      <div class="graph">
+        <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
+          <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
+        </canvas>
+      </div>
+
+      <div class="graph">
+        <canvas class="graph" id="ramUsageGraph" aria-label="RAM Usage Graph" role="img">
+          <p>Your browser does not support the canvas element for the RAM Usage Graph.</p>
+        </canvas>
+      </div>
+
+      <div class="graph">
+        <canvas class="graph" id="netUsageGraph" aria-label="Network Usage Graph" role="img">
+          <p>Your browser does not support the canvas element for the Network Usage Graph.</p>
+        </canvas>
+      </div>
+
+      <div class="graph">
+        <canvas class="graph" id="dskUsageGraph" aria-label="Disk Usage Graph" role="img">
+          <p>Your browser does not support the canvas element for the Disk Usage Graph.</p>
+        </canvas>
+      </div>
     </div>
   </header>
-  <div id="manage">
+  <div class="button-container" id="manage">
     <button onclick="ws.send('short');"> Short Press </button>
     <button onclick="ws.send('long');"> Long Press </button>
     <button onclick="ws.send('reset');"> Reset </button>
@@ -44,14 +100,18 @@
 
 <script>
   // Establish WS
-  var ws = new WebSocket("ws://" + location.hostname); // Possibly update to wss:// later
+  // var ws = new WebSocket("ws://" + location.hostname); // Possibly update to wss:// later
 
   const cpus = [];
-  const threads = 8; // Switch to static int when using off pico
+  const threads = 12; // Switch to static int when using off pico
+  const colors = ["#f2cdcd", "#f5c2e7", "#f38ba8", "#eba0ac", "#fab387", "#f9e2af", "#a6e3a1", "#94e2d5", "#89dceb", "#74c7ec", "#89b4fa", "#b4befe"];
+  const lineColors = ["#c3a5a5", "#ddafd1", "#d47993", "#cb8b95", "#e5a27c", "#e6d0a1", "#97ce92", "#82c7bc", "#7bc6d3", "#68b4d4", "#759ad6", "#9ea7de"];
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
       label: "CPU" + thread,
-      data: [],
+      data: [thread*50 + 50, thread*20 + 20,thread*80 + 80,thread*40 + 40,thread*0 + 0,thread*100 + 100,thread*25 + 25,], //REPLACE BEFORE PUSH
+      borderColor: lineColors[thread],
+      backgroundColor: colors[thread],
       fill: 'stack'
     });
   }
@@ -60,6 +120,9 @@
   const ramUsageGraph = document.getElementById('ramUsageGraph');
   const netUsageGraph = document.getElementById('netUsageGraph');
   const dskUsageGraph = document.getElementById('dskUsageGraph');
+
+  Chart.defaults.color = "#cdd6f4";
+  Chart.defaults.borderColor = "#6c7086";
 
   const cpuUsageGraphChart = new Chart(cpuUsageGraph, {
     type: 'line',
@@ -70,7 +133,7 @@
     options: {
       scales: {
         y: {
-          beginAtZero: true
+          beginAtZero: true,
         }
       }
     }
@@ -91,10 +154,6 @@
           fill: true
         }, {
           label: "Cache",
-          data: [],
-          fill: true
-        }, {
-          label: "Available",
           data: [],
           fill: true
         }
@@ -198,7 +257,7 @@
     addData(cpuUsageGraphChart, list.slice(0, threads), true);
 
     // Update RAM graph
-    addData(ramUsageGraphChart, list.slice(threads, threads + 4), false);
+    addData(ramUsageGraphChart, list.slice(threads, threads + 3), false);
 
     // Update NET graph
     addData(netUsageGraphChart, list.slice(threads + 4, threads + 6), false);
