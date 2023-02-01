@@ -1,7 +1,7 @@
 # Async code inspired by Digikey youtube video: https://youtu.be/5VLvmA__2v0 and post: https://www.digikey.com/en/maker/projects/getting-started-with-asyncio-in-micropython-raspberry-pi-pico/110b4243a2f544b6af60411a85f0437c
 from uasyncio import create_task, sleep, run
 # Allow for async serial listening
-from serial import listen
+from serialRead import listen, getData
 # Allow for connection to wireless
 from wireless import connectWireless
 # Allow for GPIO access
@@ -71,7 +71,7 @@ class AppServer(WebSocketServer):
 
 
 # Connect to WiFi network
-connectWireless()
+ip = connectWireless()
 
 # Configure and start server
 server = AppServer()
@@ -83,10 +83,13 @@ server.start()
 async def main():
     # "Setup"
     create_task(listen(server))
-    create_task(displayStats())
     # "Loop"
     while True:
-        server.parse_all()
-        await sleep(1)
+        for sec in range(180):
+            server.parse_all()
+            await sleep(1)
+        previousData, bootEpoch = getData()
+        create_task(displayStats(
+            previousData, bootEpoch, ip, len(server._clients)))
 
 run(main())

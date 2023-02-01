@@ -15,7 +15,7 @@ def connectWireless():
     wlan.connect(SSID, PASS)
 
     # Check connection
-    max_wait = 10
+    max_wait = 100
     while max_wait > 0:
         if wlan.status() < 0 or wlan.status() >= 3:
             break
@@ -28,6 +28,6 @@ def connectWireless():
         raise RuntimeError('network connection failed')
     # Serial out the IP of the device TODO: Remove for final product
     else:
-        print('connected')
         status = wlan.ifconfig()
-        print('ip = ' + status[0])
+        # Return IP
+        return status[0]
