@@ -13,46 +13,108 @@
   <title>piMI</title>
 
   <style>
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
     html {
       background-color: #1e1e2e;
       color: #cdd6f4;
+      height: 100%;
+      font-family: Sans-Serif;
     }
 
     body {
-      width: fit-content;
+      width: 100vw;
+      height: 100%;
     }
 
     .resize {
-      width: auto;
+      position: relative;
+      max-width: 1920px;
       display: flex;
       flex-wrap: wrap;
+      left: 50%;
+      transform: translatex(-50%);
+      justify-content: space-around;
     }
 
     .graph {
-      width: 50%;
-      height: auto;
-      aspect-ratio: 16 / 9;
+      position: relative;
+      width: 45%;
+      height: 30vh;
+      min-height: 250px;
+      object-fit: cover;
+      margin: 5px;
     }
 
     .button-container {
-      margin-left: auto;
-      margin-right: auto;
       width: fit-content;
+      text-align: center;
     }
 
     .button-container button {
       background-color: #313244;
       padding: 10px;
       color: #cdd6f4;
+      border: 1px solid grey;
+      border-radius: 3px;
+      margin: 10px 0;
+      font-size: 20pt;
     }
 
-    @media (max-width: 600px) {
+    .button-container button:hover {
+      background-color: #45475a;
+    }
+
+    .button-container button:active {
+      background-color: #585b70;
+    }
+
+    .hidden-desktop {
+      display: none;
+    }
+
+    .hidden-mobile {
+      display: block;
+    }
+
+    .ram-section {
+      width: 22.5%;
+      margin: 0;
+    }
+
+    @media (max-width: 1000px) {
       .resize {
         width: 95vw;
       }
 
       .graph {
         width: 100%;
+      }
+
+      .hidden-desktop {
+        display: block;
+      }
+
+      .hidden-mobile {
+        display: none;
+      }
+
+      .button-container {
+        flex: 20%;
+        text-align: center;
+      }
+
+      .button-container button {
+        font-size: 14pt;
+        padding: 2px;
+      }
+
+      .ram-section {
+        flex: 60%;
+        margin: 0;
       }
     }
   </style>
@@ -65,36 +127,45 @@
       <source selectable="false" draggable="false" srcset="/img/piMI.png" type="image/png">
       <img selectable="false" draggable="false" src="/img/piMI.png" alt="piMI Logo" />
     </picture> -->
-    <div class="resize">
-      <div class="graph">
-        <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
-          <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
-        </canvas>
-      </div>
-
-      <div class="graph">
-        <canvas class="graph" id="ramUsageGraph" aria-label="RAM Usage Graph" role="img">
-          <p>Your browser does not support the canvas element for the RAM Usage Graph.</p>
-        </canvas>
-      </div>
-
-      <div class="graph">
-        <canvas class="graph" id="netUsageGraph" aria-label="Network Usage Graph" role="img">
-          <p>Your browser does not support the canvas element for the Network Usage Graph.</p>
-        </canvas>
-      </div>
-
-      <div class="graph">
-        <canvas class="graph" id="dskUsageGraph" aria-label="Disk Usage Graph" role="img">
-          <p>Your browser does not support the canvas element for the Disk Usage Graph.</p>
-        </canvas>
-      </div>
-    </div>
   </header>
-  <div class="button-container" id="manage">
+  <h1 class="button-container" style="text-align:center;width:100%;margin-bottom:40px;">System Info</h1>
+  <div class="button-container hidden-desktop" style="margin: auto;" id="manage">
+    <h2>Power Buttons</h2>
     <button onclick="ws.send('short');"> Short Press </button>
     <button onclick="ws.send('long');"> Long Press </button>
     <button onclick="ws.send('reset');"> Reset </button>
+  </div>
+  <div class="resize">
+    <div class="graph">
+      <canvas id="cpuUsageGraph" aria-label="CPU Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the CPU Usage Graph.</p>
+      </canvas>
+    </div>
+
+    <div class="graph ram-section">
+      <canvas class="graph" id="ramUsageGraph" aria-label="RAM Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the RAM Usage Graph.</p>
+      </canvas>
+    </div>
+
+    <div class="button-container ram-section hidden-mobile" id="manage">
+      <h2>Power Buttons</h2>
+      <button onclick="ws.send('short');"> Short Press </button>
+      <button onclick="ws.send('long');"> Long Press </button>
+      <button onclick="ws.send('reset');"> Reset </button>
+    </div>
+
+    <div class="graph">
+      <canvas class="graph" id="netUsageGraph" aria-label="Network Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the Network Usage Graph.</p>
+      </canvas>
+    </div>
+
+    <div class="graph">
+      <canvas class="graph" id="dskUsageGraph" aria-label="Disk Usage Graph" role="img">
+        <p>Your browser does not support the canvas element for the Disk Usage Graph.</p>
+      </canvas>
+    </div>
   </div>
 </body>
 
@@ -131,6 +202,8 @@
       datasets: cpus
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: {
           beginAtZero: true,
@@ -141,17 +214,21 @@
 
   const ramUsageGraphChart = new Chart(ramUsageGraph, {
     type: 'doughnut',
+    borderColor: 'green',
     data: {
       labels: ["Used", "Free", "Cache"],
       datasets: [
         {
           label: "Current",
           data: [50, 60, 40],
-          fill: true
+          fill: true,
+          backgroundColor: ["#f38ba8", "#f9e2af", "#74c7ec"]
         }
       ]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
     }
   });
 
@@ -163,15 +240,19 @@
         {
           label: "Recv",
           data: [50],
-          fill: true
+          fill: true,
+          backgroundColor: "#89b4fa"
         }, {
           label: "Send",
           data: [-50],
-          fill: true
+          fill: true,
+          backgroundColor: "#eba0ac"
         }
       ]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {
           stacked: true
@@ -200,6 +281,8 @@
       ]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         x: {
           stacked: true
