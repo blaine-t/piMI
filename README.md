@@ -1,4 +1,4 @@
-# ![piMI](/dev/img/piMI256.png)
+# ![piMI](/dev/img/PiMI256.png)
 
 ## TODO:
 
