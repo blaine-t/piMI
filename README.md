@@ -1,4 +1,6 @@
-# ![piMI](/dev/img/PiMI256.png)
+<p align="center">
+  <img src="/dev/img/PiMI256.png" height="100">
+</p>
 
 ## Description
 
