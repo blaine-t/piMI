@@ -7,23 +7,23 @@ from wireless import connectWireless
 # Allow for GPIO access
 from gpio import shortPress, longPress, resetPress
 # Allow for display access
-from display import test
+from display import displayStats
 
 # Original code for web socket server by Florin Dragan licensed under the MIT License: https://gitlab.com/florindragan/raspberry_pico_w_websocket/-/blob/main/LICENSE
 # MIT License
-# 
+#
 # Copyright (c) 2023 Florin Dragan
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,6 +33,7 @@ from display import test
 # SOFTWARE.
 from ws_connection import ClientClosedError
 from ws_server import WebSocketServer, WebSocketClient
+
 
 class clientHandle(WebSocketClient):
     def parse(self):
@@ -54,7 +55,7 @@ class clientHandle(WebSocketClient):
         try:
             # Update graphs
             self.connection.write(dataList)
-            
+
         except ClientClosedError:
             self.connection.close()
 
@@ -68,6 +69,7 @@ class AppServer(WebSocketServer):
     def _make_client(self, conn):
         return clientHandle(conn)
 
+
 # Connect to WiFi network
 connectWireless()
 
@@ -76,10 +78,12 @@ server = AppServer()
 server.start()
 
 # Main loop
+
+
 async def main():
     # "Setup"
     create_task(listen(server))
-    create_task(test())
+    create_task(displayStats())
     # "Loop"
     while True:
         server.parse_all()
