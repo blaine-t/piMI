@@ -60,7 +60,7 @@
       color: #cdd6f4;
       border: 1px solid grey;
       border-radius: 3px;
-      margin: 10px 0;
+      margin: 10px 5px;
       font-size: 20pt;
     }
 
@@ -208,6 +208,15 @@
         y: {
           beginAtZero: true,
         }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'CPU Usage (Per Core)',
+          font: {
+            size: 18
+          }
+        }
       }
     }
   });
@@ -229,6 +238,15 @@
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Memory Usage',
+          font: {
+            size: 18
+          }
+        }
+      }
     }
   });
 
@@ -259,6 +277,15 @@
         },
         y: {
           stacked: true
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Network Activity',
+          font: {
+            size: 18
+          }
         }
       }
     }
@@ -293,6 +320,15 @@
           min: -100,
           max: 100,
           stacked: true
+        }
+      },
+      plugins: {
+        title: {
+          display: true,
+          text: 'Disk Activity',
+          font: {
+            size: 18
+          }
         }
       }
     }
