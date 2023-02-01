@@ -175,7 +175,7 @@
 
   const cpus = [];
   const threads = 12; // Switch to static int when using off pico
-  const colors = ["#f2cdcd", "#f5c2e7", "#f38ba8", "#eba0ac", "#fab387", "#f9e2af", "#a6e3a1", "#94e2d5", "#89dceb", "#74c7ec", "#89b4fa", "#b4befe"];
+  const colors = ["#c8f2cdf0", "#f5c2e7f0", "#f38ba8f0", "#eba0acf0", "#fab387f0", "#f9e2aff0", "#a6e3a1f0", "#94e2d5f0", "#89dcebf0", "#74c7ecf0", "#89b4faf0", "#b4befef0"];
   const lineColors = ["#c3a5a5", "#ddafd1", "#d47993", "#cb8b95", "#e5a27c", "#e6d0a1", "#97ce92", "#82c7bc", "#7bc6d3", "#68b4d4", "#759ad6", "#9ea7de"];
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
@@ -241,12 +241,12 @@
           label: "Recv",
           data: [50],
           fill: true,
-          backgroundColor: "#89b4fa"
+          backgroundColor: "#89b4faf0"
         }, {
           label: "Send",
           data: [-50],
           fill: true,
-          backgroundColor: "#eba0ac"
+          backgroundColor: "#eba0acf0"
         }
       ]
     },
@@ -272,11 +272,13 @@
         {
           label: "Read",
           data: [80],
-          fill: true
+          fill: true,
+          backgroundColor: "#89b4faf0"
         }, {
           label: "Write",
           data: [-30],
-          fill: true
+          fill: true,
+          backgroundColor: "#eba0acf0"
         }
       ]
     },
