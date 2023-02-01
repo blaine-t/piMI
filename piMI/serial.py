@@ -7,8 +7,9 @@ from uselect import poll, POLLIN
 from uasyncio import sleep
 
 # Serial read requirements
-spoll=poll()
-spoll.register(stdin,POLLIN)
+spoll = poll()
+spoll.register(stdin, POLLIN)
+
 
 async def listen(server):
     # Create a variable to hold until buffer read
@@ -22,7 +23,8 @@ async def listen(server):
             data += byte
         # If no serial data ready to read
         elif byte != "\n":
-            await sleep(0.2) # Wait 200ms for computer's serial write to finish
+            # Wait 200ms for computer's serial write to finish
+            await sleep(0.2)
         else:
             # If there is data in buffer
             if data != "":

@@ -3,9 +3,11 @@ from network import WLAN, STA_IF
 # Enable wait timer
 from time import sleep
 # Get secrets
-from glv import SSID, PASS
+from secrets import SSID, PASS
 
 # Connect to a wireless network
+
+
 def connectWireless():
     # Set WLAN config
     wlan = WLAN(STA_IF)
@@ -28,4 +30,4 @@ def connectWireless():
     else:
         print('connected')
         status = wlan.ifconfig()
-        print( 'ip = ' + status[0] )
+        print('ip = ' + status[0])

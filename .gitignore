@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # Remove personalized info
-/piMI/glv.py
+/piMI/secrets.py

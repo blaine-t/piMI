@@ -364,7 +364,7 @@
     var list = JSON.parse(evt.data);
 
     // Make sure that the amount of threads is correct by checking if just the extra data is left
-    if (list.length - threads != 8) {
+    if (list.length - threads != 9) { //Added epoch support
       // TODO: Add error handling
       return
     }

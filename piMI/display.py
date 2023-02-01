@@ -30,11 +30,16 @@
 
 # Modification by Blaine Traudt to add async support and display computer stats
 
-import utime
-import framebuf
-import ujson as json
-from machine import Pin, SPI, Timer
+# Import localtime for converting epoch to time and sleep_ms for reset that needs blocking sleep
+from time import localtime, sleep_ms as blockSleep_ms
+# Import uasyncio for async support
+from uasyncio import sleep, sleep_ms, run
+# Import framebuffer for display
+from framebuf import FrameBuffer, MONO_VLSB
+# Import machine for accessing GPIO
+from machine import Pin, SPI
 
+# TODO: ACTUALLY FULL REFRESH
 lut_partial_landscape = [
     0x80, 0x60, 0x40, 0x00, 0x00, 0x00, 0x00,  # LUT0: BB:     VS 0 ~7
     0x10, 0x60, 0x80, 0x00, 0x00, 0x00, 0x00,  # LUT1: BW:     VS 0 ~7
@@ -49,8 +54,8 @@ lut_partial_landscape = [
     0x00, 0x00, 0x00, 0x00, 0x00,                       # TP4 A~D RP4
     0x00, 0x00, 0x00, 0x00, 0x00,                       # TP5 A~D RP5
     0x00, 0x00, 0x00, 0x00, 0x00,                       # TP6 A~D RP6
-    0x22, 0x17, 0x41, 0x00, 0x32, 0x36
-    # 0x15,0x41,0xA8,0x32,0x30,0x0A
+    0x22, 0x17, 0x41, 0x00, 0x32, 0x36                  # New Value
+    # 0x15,0x41,0xA8,0x32,0x30,0x0A                     # Old Value
 ]
 
 EPD_WIDTH = 128
@@ -69,11 +74,12 @@ DC_PIN = e_Paper_DC
 CS_PIN = e_Paper_CS
 BUSY_PIN = e_Paper_BUSY
 
+# No clue what this does
 FULL_UPDATE = 0
 PART_UPDATE = 1
 
 
-class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
+class EPD_2in13_V3_Landscape(FrameBuffer):
     def __init__(self):
         self.reset_pin = Pin(RST_PIN, Pin.OUT)
 
@@ -88,11 +94,11 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
 
         self.full_lut = lut_partial_landscape
         self.spi = SPI(1)
-        self.spi.init(baudrate=1000_000)
+        self.spi.init(baudrate=1000_000)  # TODO: TRY 4000_000
         self.dc_pin = Pin(DC_PIN, Pin.OUT)
 
         self.buffer = bytearray(self.height * self.width // 8)
-        super().__init__(self.buffer, self.height, self.width, framebuf.MONO_VLSB)
+        super().__init__(self.buffer, self.height, self.width, MONO_VLSB)
         self.init()
 
     @staticmethod
@@ -104,12 +110,14 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         return pin.value()
 
     @staticmethod
-    def delay(delaytime):
-        utime.sleep(delaytime)
+    # Async delay in seconds
+    async def delay(delaytime):
+        await sleep(delaytime)
 
     @staticmethod
-    def delay_ms(delaytime):
-        utime.sleep(delaytime / 1000.0)
+    # Async delay in milliseconds
+    async def delay_ms(delaytime):
+        await sleep_ms(delaytime)
 
     '''
     function : Write data to SPI
@@ -127,11 +135,11 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
 
     def reset(self):
         self.digital_write(self.reset_pin, 1)
-        self.delay_ms(50)
+        blockSleep_ms(50)
         self.digital_write(self.reset_pin, 0)
-        self.delay_ms(2)
+        blockSleep_ms(2)
         self.digital_write(self.reset_pin, 1)
-        self.delay_ms(50)
+        blockSleep_ms(50)
 
     '''
     function :send command
@@ -162,11 +170,9 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
     parameter:
     '''
 
-    def ReadBusy(self):
-        print('busy')
+    async def ReadBusy(self):
         while self.digital_read(self.busy_pin) == 1:  # 0: idle, 1: busy
-            self.delay_ms(10)
-        print('busy release')
+            await sleep_ms(100)
 
     '''
     function : Turn On Display
@@ -177,7 +183,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0xC7)
         self.send_command(0x20)  # Activate Display Update Sequence
-        self.ReadBusy()
+        run(self.ReadBusy())
 
     '''
     function : Turn On Display Part
@@ -188,7 +194,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         self.send_command(0x22)  # Display Update Control
         self.send_data(0x0c)  # fast:0x0c, quality:0x0f, 0xcf
         self.send_command(0x20)  # Activate Display Update Sequence
-        self.ReadBusy()
+        run(self.ReadBusy())
 
     '''
     function : Set LUT
@@ -200,7 +206,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         self.send_command(0x32)
         for i in range(0, 70):
             self.send_data(lut[i])
-        self.ReadBusy()
+        run(self.ReadBusy())
 
     '''
     function : Send the lut data and configuration
@@ -262,13 +268,12 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
     '''
 
     def init(self) -> object:
-        print('init')
         self.reset()
-        self.delay_ms(100)
+        run(self.delay_ms(100))
 
-        self.ReadBusy()
+        run(self.ReadBusy())
         self.send_command(0x12)  # SWRESET
-        self.ReadBusy()
+        run(self.ReadBusy())
 
         self.send_command(0x01)  # Driver output control
         self.send_data(0xf9)
@@ -291,7 +296,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         self.send_command(0x18)  # Read built-in temperature sensor
         self.send_data(0x80)
 
-        self.ReadBusy()
+        run(self.ReadBusy())
         self.LUT_by_host(self.full_lut)
 
     def Clear(self, color):
@@ -329,7 +334,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
 
     def display_Partial(self, image):
         self.digital_write(self.reset_pin, 0)
-        self.delay_ms(1)
+        blockSleep_ms(1)
         self.digital_write(self.reset_pin, 1)
 
         self.LUT_by_host(self.full_lut)
@@ -353,7 +358,7 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
         self.send_command(0x22)
         self.send_data(0xC0)
         self.send_command(0x20)
-        self.ReadBusy()
+        run(self.ReadBusy())
 
         self.SetWindows(0, 0, self.width - 1, self.height - 1)
         self.SetCursor(0, 0)
@@ -368,109 +373,149 @@ class EPD_2in13_V3_Landscape(framebuf.FrameBuffer):
     def sleep(self):
         self.send_command(0x10)  # enter deep sleep
         self.send_data(0x03)
-        self.delay_ms(100)
+        run(self.delay_ms(100))
         # self.module_exit()
 
 
-def timeout_sleep():
+def shortenNum(num):
+    # Returns a shortened number
+    # Under 10KB
+    if num < 10000:
+        return str(int(num)) + "B"
+    # Under 10MB
+    elif num < 10000000:
+        return str(int(num/1000)) + "K"
+    # Under 10GB
+    elif num < 10000000000:
+        return str(int(num/1000/1000)) + "M"
+    # Under 10TB
+    elif num < 10000000000000:
+        return str(int(num/1000/1000/1000)) + "G"
+    # Under 10PB
+    elif num < 10000000000000000:
+        return str(int(num/1000/1000/1000/1000)) + "T"
+    # Over 10PB
+    else:
+        return "TOO BIG"
+
+
+def epochToTime(givenTime):
+    # Convert epoch to local time
+    # From rpr at: https://forum.micropython.org/viewtopic.php?t=7002
+    # Following returns the time tuple taking into account the epoch start difference 1970 vs 2000
+    x = localtime(givenTime)
+    return ("%02d:%02d" % x[3:5])
+
+
+def secondsToUptime(givenTime):
+    # Convert seconds to uptime in days:hours:minutes:seconds
+    day = givenTime // (24 * 3600)
+    givenTime = givenTime % (24 * 3600)
+    hour = givenTime // 3600
+    givenTime %= 3600
+    minutes = givenTime // 60
+    givenTime %= 60
+    seconds = givenTime
+    return (f"{day}:{hour:02d}:{minutes:02d}:{seconds:02d}")
+
+
+def stringFormatter(label, value):
+    # Formats string to be pretty on display
+    spaces = 10 - len(label) - len(value)
+    return label + ":" + " "*spaces + value
+
+
+async def displayStats(data, bootEpoch, ip, clients):
+    # Declare display
     epd = EPD_2in13_V3_Landscape()
-    epd.init()
+
+    # Calculate average CPU usage
+    threads = len(data) - 9
+    cpuAvg = str(sum(data[:threads]) / threads) + "%"
+
+    # Grab all other data from list
+    used = shortenNum(data[threads:threads+1][0])
+    free = shortenNum(data[threads+1:threads+2][0])
+    cache = shortenNum(data[threads+2:threads+3][0])
+    down = shortenNum(data[threads+4:threads+5][0])
+    up = shortenNum(data[threads+5:threads+6][0])
+    read = shortenNum(data[threads+6:threads+7][0])
+    write = shortenNum(data[threads+7:threads+8][0])
+    currentTime = data[-1]
+
+    # Calculate uptime
+    uptime = secondsToUptime(currentTime - bootEpoch)
+
+    # Make sure if PC off uptime reflects
+    if bootEpoch == 0:
+        uptime = "OFF"
+
+    # Make current time user friendly string
+    currentTime = epochToTime(currentTime)
+
+    # Wipe display clear
     epd.Clear(0xff)
-    epd.delay_ms(2000)
-    epd.sleep()
-
-
-async def test():
-    epd = EPD_2in13_V3_Landscape()
-    epd.Clear(0xff)
-
     epd.fill(0xff)
-    epd.text("Waveshare", 0, 10, 0x00)
-    epd.text("ePaper-2.13_V3", 0, 20, 0x00)
-    epd.text("Raspberry Pico", 0, 30, 0x00)
-    epd.text("Hello World", 0, 40, 0x00)
+
+    # Box for stats
+    epd.rect(15, 15, 101, 101, 0x00)
+
+    # Top thickness
+    #        X1  Y1  X2   Y2  Color
+    epd.line(15, 14, 115, 14, 0x00)
+    epd.line(15, 13, 115, 13, 0x00)
+    epd.line(15, 12, 115, 12, 0x00)
+
+    # Right side thickness
+    #        X1   Y1  X2   Y2  Color
+    epd.line(116, 15, 116, 115, 0x00)
+    epd.line(117, 15, 117, 115, 0x00)
+    epd.line(118, 15, 118, 115, 0x00)
+
+    # Bottom thickness
+    #        X1   Y1   X2  Y2  Color
+    epd.line(115, 116, 15, 116, 0x00)
+    epd.line(115, 117, 15, 117, 0x00)
+    epd.line(115, 118, 15, 118, 0x00)
+
+    # Left side thickness
+    #        X1  Y1   X2  Y2  Color
+    epd.line(14, 115, 14, 15, 0x00)
+    epd.line(13, 115, 13, 15, 0x00)
+    epd.line(12, 115, 12, 15, 0x00)
+
+    # (Text is 8 pixels wide monospace)
+    # Text stats            X   Y   Color
+    epd.text(stringFormatter("CPU", cpuAvg), 21, 25, 0x00)
+    epd.text(stringFormatter("USED", used), 21, 35, 0x00)
+    epd.text(stringFormatter("FREE", free), 21, 45, 0x00)
+    epd.text(stringFormatter("CACHE", cache), 21, 55, 0x00)
+    epd.text(stringFormatter("DOWN", down), 21, 65, 0x00)
+    epd.text(stringFormatter("UP", up), 21, 75, 0x00)
+    epd.text(stringFormatter("READ", read), 21, 85, 0x00)
+    epd.text(stringFormatter("WRITE", write), 21, 95, 0x00)
+
+    # IP info
+    epd.text(ip, 125, 10, 0x00)
+
+    # Current time
+    epd.text(currentTime, 165, 50, 0x00)
+
+    # Uptime
+    epd.text("Uptime:", 125, 80, 0x00)
+    epd.text(uptime, 125, 90, 0x00)
+
+    # Clients
+    epd.text("Web Clients:" + str(clients), 125, 110, 0x00)
+
+    # Output data to display
     epd.display(epd.buffer)
-    epd.delay_ms(2000)
 
-    epd.vline(5, 55, 60, 0x00)
-    epd.vline(100, 55, 60, 0x00)
-    epd.hline(5, 55, 95, 0x00)
-    epd.hline(5, 115, 95, 0x00)
-    epd.line(5, 55, 100, 115, 0x00)
-    epd.line(100, 55, 5, 115, 0x00)
-    epd.display(epd.buffer)
-    epd.delay_ms(2000)
 
-    epd.rect(130, 10, 40, 80, 0x00)
-    epd.fill_rect(190, 10, 40, 80, 0xff)
-    epd.Display_Base(epd.buffer)
-    epd.delay_ms(2000)
-
-    epd.init()
-    for i in range(0, 10):
-        epd.fill_rect(175, 105, 10, 10, 0xff)
-        epd.text(str(i), 177, 106, 0x00)
-        epd.display_Partial(epd.buffer)
-
-    print("sleep")
+# Clear display and put it to sleep for storage
+async def sleepDisplay():
+    epd = EPD_2in13_V3_Landscape()
     epd.init()
     epd.Clear(0xff)
-    epd.delay_ms(2000)
+    await sleep(2)
     epd.sleep()
-
-
-async def displayStats():
-    epd = EPD_2in13_V3_Landscape()
-    while True:
-        epd.Clear(0xff)
-        epd.fill(0xff)
-        # Box for stats
-        epd.rect(15, 15, 101, 101, 0x00)
-        # Top thickness
-        #        X1  Y1  X2   Y2  Color
-        epd.line(15, 14, 115, 14, 0x00)
-        epd.line(15, 13, 115, 13, 0x00)
-        epd.line(15, 12, 115, 12, 0x00)
-        # Right side thickness
-        #        X1   Y1  X2   Y2  Color
-        epd.line(116, 15, 116, 115, 0x00)
-        epd.line(117, 15, 117, 115, 0x00)
-        epd.line(118, 15, 118, 115, 0x00)
-        # Bottom thickness
-        #        X1   Y1   X2  Y2  Color
-        epd.line(115, 116, 15, 116, 0x00)
-        epd.line(115, 117, 15, 117, 0x00)
-        epd.line(115, 118, 15, 118, 0x00)
-        # Left side thickness
-        #        X1  Y1   X2  Y2  Color
-        epd.line(14, 115, 14, 15, 0x00)
-        epd.line(13, 115, 13, 15, 0x00)
-        epd.line(12, 115, 12, 15, 0x00)
-
-        # (Text is 8 pixels wide monospace)
-        # Text stats            X   Y   Color
-        epd.text("CPU:   100%", 21, 25, 0x00)
-        epd.text("USED: 7000M", 21, 35, 0x00)
-        epd.text("FREE: 7000M", 21, 45, 0x00)
-        epd.text("CACHE: 700M", 21, 55, 0x00)
-        epd.text("DOWN:  100M", 21, 65, 0x00)
-        epd.text("UP:    100M", 21, 75, 0x00)
-        epd.text("READ:  100M", 21, 85, 0x00)
-        epd.text("WRITE: 100M", 21, 95, 0x00)
-
-        # IP info
-        epd.text("192.168.100.100", 125, 10, 0x00)
-
-        # Current time
-        epd.text("24:00", 165, 50, 0x00)
-
-        # Uptime
-        epd.text("Uptime:", 125, 80, 0x00)
-        epd.text("999:12:12:12", 125, 90, 0x00)
-
-        # Clients
-        epd.text("Web Clients:100", 125, 110, 0x00)
-
-        # Output data to display
-        epd.display(epd.buffer)
-        epd.delay(180)
