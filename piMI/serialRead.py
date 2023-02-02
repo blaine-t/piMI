@@ -11,7 +11,7 @@ spoll = poll()
 spoll.register(stdin, POLLIN)
 
 
-previousData = [0]
+previousData = [0,0,0,0,0,0,0,0,0,0]
 bootEpoch = 0
 
 
@@ -39,15 +39,19 @@ async def listen(server):
                 # Send it to websocket
                 server.process_all(data)
 
+                # A bunch of conversion shenanigans
+                global previousData
+                dataList = data[1:-2].split(",")
+                dataList = [eval(i) for i in dataList]
+
                 # Update variables
                 # If it's been more than 60 seconds since last serial update
                 # then reset bootEpoch or if it's first run (since it's 0)
-                if previousData[-1] + 12 > list(data)[-1]:
+                if previousData[-1] + 12 < dataList[-1]:
                     global bootEpoch
-                    bootEpoch = list(data)[-1]
+                    bootEpoch = dataList[-1]
 
-                global previousData
-                previousData = list(data)
+                previousData = dataList
                 # Clear buffer
                 data = ""
             # Async wait half a second to allow other processes to run

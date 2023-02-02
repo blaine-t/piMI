@@ -174,15 +174,15 @@
   var ws = new WebSocket("ws://" + location.hostname); // Possibly update to wss:// later
 
   const cpus = [];
-  const threads = 12; // Switch to static int when using off pico
+  const threads = 8; // Switch to static int when using off pico
   const colors = ["#c8f2cdf0", "#f5c2e7f0", "#f38ba8f0", "#eba0acf0", "#fab387f0", "#f9e2aff0", "#a6e3a1f0", "#94e2d5f0", "#89dcebf0", "#74c7ecf0", "#89b4faf0", "#b4befef0"];
   const lineColors = ["#c3a5a5", "#ddafd1", "#d47993", "#cb8b95", "#e5a27c", "#e6d0a1", "#97ce92", "#82c7bc", "#7bc6d3", "#68b4d4", "#759ad6", "#9ea7de"];
   for (var thread = 0; thread < threads; thread++) {
     cpus.push({
       label: "CPU" + thread,
-      data: [thread * 50 + 50, thread * 20 + 20, thread * 80 + 80, thread * 40 + 40, thread * 0 + 0, thread * 100 + 100, thread * 25 + 25,], //REPLACE BEFORE PUSH
-      borderColor: lineColors[thread],
-      backgroundColor: colors[thread],
+      data: [],
+      borderColor: lineColors[thread % lineColors.length],
+      backgroundColor: colors[thread % colors.length],
       fill: 'stack'
     });
   }
@@ -198,7 +198,7 @@
   const cpuUsageGraphChart = new Chart(cpuUsageGraph, {
     type: 'line',
     data: {
-      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s', '45s'],
       datasets: cpus
     },
     options: {
@@ -229,7 +229,7 @@
       datasets: [
         {
           label: "Current",
-          data: [50, 60, 40],
+          data: [],
           fill: true,
           backgroundColor: ["#f38ba8", "#f9e2af", "#74c7ec"]
         }
@@ -253,16 +253,16 @@
   const netUsageGraphChart = new Chart(netUsageGraph, {
     type: 'bar',
     data: {
-      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s', '45s'],
       datasets: [
         {
           label: "Recv",
-          data: [50],
+          data: [],
           fill: true,
           backgroundColor: "#89b4faf0"
         }, {
           label: "Send",
-          data: [-50],
+          data: [],
           fill: true,
           backgroundColor: "#eba0acf0"
         }
@@ -294,16 +294,16 @@
   const dskUsageGraphChart = new Chart(dskUsageGraph, {
     type: 'bar',
     data: {
-      labels: ['0', '5', '10', '15', '20', '25', '30', '35', '40', '45'],
+      labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s', '45s'],
       datasets: [
         {
           label: "Read",
-          data: [80],
+          data: [],
           fill: true,
           backgroundColor: "#89b4faf0"
         }, {
           label: "Write",
-          data: [-30],
+          data: [],
           fill: true,
           backgroundColor: "#eba0acf0"
         }
@@ -317,8 +317,6 @@
           stacked: true
         },
         y: {
-          min: -100,
-          max: 100,
           stacked: true
         }
       },
@@ -335,11 +333,8 @@
   });
 
   // Allows pushing new data to chart
-  function addData(chart, list, stacked) {
-    console.log(list.length)
+  function addCPU(chart, list, stacked) {
     for (var i = 0; i < list.length; i++) {
-      console.log(i)
-      console.log(chart.data.datasets[i])
       // Make sure to not overfill graph
       length = chart.data.datasets[i].data.length
       if (length >= 10) {
@@ -359,27 +354,44 @@
     chart.update();
   }
 
+  function addRAM(chart, list) {
+    chart.data.datasets[0].data = list
+    chart.update();
+  }
+
+  function addActivity(chart, list) {
+    // Make sure to not overfill graph
+    if (chart.data.datasets[0].data.length >= 10) {
+      chart.data.datasets[0].data.shift();
+    }
+    if (chart.data.datasets[1].data.length >= 10) {
+      chart.data.datasets[1].data.shift();
+    }
+    chart.data.datasets[0].data.push(list[0])
+    chart.data.datasets[1].data.push(-list[1])
+    chart.update();
+  }
+
   ws.onmessage = function (evt) {
     // Get list from WS
     var list = JSON.parse(evt.data);
-
     // Make sure that the amount of threads is correct by checking if just the extra data is left
     if (list.length - threads != 9) { //Added epoch support
-      // TODO: Add error handling
+      console.error("Error with data")
       return
     }
 
     // Update CPU graph
-    addData(cpuUsageGraphChart, list.slice(0, threads), true);
+    addCPU(cpuUsageGraphChart, list.slice(0, threads), true);
 
     // Update RAM graph
-    addData(ramUsageGraphChart, list.slice(threads, threads + 3), false);
+    addRAM(ramUsageGraphChart, list.slice(threads, threads + 3));
 
     // Update NET graph
-    addData(netUsageGraphChart, list.slice(threads + 4, threads + 6), false);
+    addActivity(netUsageGraphChart, list.slice(threads + 4, threads + 6));
 
     // Update DSK graph
-    addData(dskUsageGraphChart, list.slice(threads + 6, threads + 8), false);
+    addActivity(dskUsageGraphChart, list.slice(threads + 6, threads + 8));
   };
 </script>
 

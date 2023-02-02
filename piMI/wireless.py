@@ -20,7 +20,6 @@ def connectWireless():
         if wlan.status() < 0 or wlan.status() >= 3:
             break
         max_wait -= 1
-        print('waiting for connection...')
         sleep(1)
 
     # If improper connection or never reached

@@ -399,24 +399,32 @@ def shortenNum(num):
         return "TOO BIG"
 
 
-def epochToTime(givenTime):
+def epochToTime(givenTime, hourOffset):
     # Convert epoch to local time
     # From rpr at: https://forum.micropython.org/viewtopic.php?t=7002
     # Following returns the time tuple taking into account the epoch start difference 1970 vs 2000
     x = localtime(givenTime)
-    return ("%02d:%02d" % x[3:5])
+    # Timezone shenanigans
+    hours = x[3]
+    minutes = x[4]
+    hours += hourOffset
+    if (hours < 0):
+        hours += 24
+    elif (hours > 23):
+        hours -= 24
+    return (f"{hours:02d}:{minutes:02d}")
 
 
 def secondsToUptime(givenTime):
     # Convert seconds to uptime in days:hours:minutes:seconds
     day = givenTime // (24 * 3600)
     givenTime = givenTime % (24 * 3600)
-    hour = givenTime // 3600
+    hours = givenTime // 3600
     givenTime %= 3600
     minutes = givenTime // 60
     givenTime %= 60
     seconds = givenTime
-    return (f"{day}:{hour:02d}:{minutes:02d}:{seconds:02d}")
+    return (f"{day}:{hours:02d}:{minutes:02d}:{seconds:02d}")
 
 
 def stringFormatter(label, value):
@@ -426,13 +434,13 @@ def stringFormatter(label, value):
 
 
 async def displayStats(data, bootEpoch, ip, clients):
+
     # Declare display
     epd = EPD_2in13_V3_Landscape()
 
     # Calculate average CPU usage
     threads = len(data) - 9
-    cpuAvg = str(sum(data[:threads]) / threads) + "%"
-
+    cpuAvg = str(round(sum(data[:threads]) / threads, 1)) + "%"
     # Grab all other data from list
     used = shortenNum(data[threads:threads+1][0])
     free = shortenNum(data[threads+1:threads+2][0])
@@ -451,7 +459,10 @@ async def displayStats(data, bootEpoch, ip, clients):
         uptime = "OFF"
 
     # Make current time user friendly string
-    currentTime = epochToTime(currentTime)
+    if uptime == "OFF":
+        currentTime = ""
+    else:
+        currentTime = epochToTime(currentTime, -6)
 
     # Wipe display clear
     epd.Clear(0xff)
@@ -490,8 +501,8 @@ async def displayStats(data, bootEpoch, ip, clients):
     epd.text(stringFormatter("USED", used), 21, 35, 0x00)
     epd.text(stringFormatter("FREE", free), 21, 45, 0x00)
     epd.text(stringFormatter("CACHE", cache), 21, 55, 0x00)
-    epd.text(stringFormatter("DOWN", down), 21, 65, 0x00)
-    epd.text(stringFormatter("UP", up), 21, 75, 0x00)
+    epd.text(stringFormatter("RECV", down), 21, 65, 0x00)
+    epd.text(stringFormatter("SEND", up), 21, 75, 0x00)
     epd.text(stringFormatter("READ", read), 21, 85, 0x00)
     epd.text(stringFormatter("WRITE", write), 21, 95, 0x00)
 
