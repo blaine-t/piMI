@@ -6,9 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
-  <!-- <link rel="stylesheet" type="text/css" href="style.css" /> -->
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
 
   <title>piMI</title>
 
@@ -206,7 +205,7 @@
       maintainAspectRatio: false,
       scales: {
         y: {
-          beginAtZero: true,
+          beginAtZero: true
         }
       },
       plugins: {
@@ -265,6 +264,12 @@
           data: [],
           fill: true,
           backgroundColor: "#eba0acf0"
+        }, {
+          data: [],
+          backgroundColor: "#0000"
+        }, {
+          data: [],
+          backgroundColor: "#0000"
         }
       ]
     },
@@ -276,7 +281,12 @@
           stacked: true
         },
         y: {
-          stacked: true
+          stacked: false,
+          ticks: {
+            callback: function(value, index, values) {
+              return numeral(value).format('0.0a');
+            }
+          }
         }
       },
       plugins: {
@@ -285,6 +295,19 @@
           text: 'Network Activity',
           font: {
             size: 18
+          }
+        },
+        legend: {
+          labels: {
+            filter: function(legendItem, data) {
+              let label = data.datasets[legendItem.datasetIndex].label || '';
+              if (typeof(label) !== 'undefined') {
+                if (legendItem.datasetIndex >= 3){
+                  return false;
+                }
+              }
+              return label;
+            }
           }
         }
       }
@@ -297,15 +320,21 @@
       labels: ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s', '45s'],
       datasets: [
         {
-          label: "Read",
+          label: "Recv",
           data: [],
           fill: true,
           backgroundColor: "#89b4faf0"
         }, {
-          label: "Write",
+          label: "Send",
           data: [],
           fill: true,
           backgroundColor: "#eba0acf0"
+        }, {
+          data: [],
+          backgroundColor: "#0000"
+        }, {
+          data: [],
+          backgroundColor: "#0000"
         }
       ]
     },
@@ -317,7 +346,12 @@
           stacked: true
         },
         y: {
-          stacked: true
+          stacked: false,
+          ticks: {
+            callback: function(value, index, values) {
+              return numeral(value).format('0.0a');
+            }
+          }
         }
       },
       plugins: {
@@ -326,6 +360,19 @@
           text: 'Disk Activity',
           font: {
             size: 18
+          }
+        },
+        legend: {
+          labels: {
+            filter: function(legendItem, data) {
+              let label = data.datasets[legendItem.datasetIndex].label || '';
+              if (typeof(label) !== 'undefined') {
+                if (legendItem.datasetIndex >= 3){
+                  return false;
+                }
+              }
+              return label;
+            }
           }
         }
       }
@@ -363,12 +410,17 @@
     // Make sure to not overfill graph
     if (chart.data.datasets[0].data.length >= 10) {
       chart.data.datasets[0].data.shift();
+      chart.data.datasets[2].data.shift();
     }
     if (chart.data.datasets[1].data.length >= 10) {
       chart.data.datasets[1].data.shift();
+      chart.data.datasets[3].data.shift();
     }
     chart.data.datasets[0].data.push(list[0])
+    chart.data.datasets[2].data.push(-list[0]) // Push to the inverted graph to keep the size the same
+
     chart.data.datasets[1].data.push(-list[1])
+    chart.data.datasets[3].data.push(list[1])  // Push to the other inverted graph
     chart.update();
   }
 
