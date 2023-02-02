@@ -39,7 +39,7 @@ from framebuf import FrameBuffer, MONO_VLSB
 # Import machine for accessing GPIO
 from machine import Pin, SPI
 
-# TODO: ACTUALLY FULL REFRESH
+# TODO: ACTUALLY FULL REFRESH (Works fine leaving for now)
 lut_partial_landscape = [
     0x80, 0x60, 0x40, 0x00, 0x00, 0x00, 0x00,  # LUT0: BB:     VS 0 ~7
     0x10, 0x60, 0x80, 0x00, 0x00, 0x00, 0x00,  # LUT1: BW:     VS 0 ~7
@@ -94,7 +94,8 @@ class EPD_2in13_V3_Landscape(FrameBuffer):
 
         self.full_lut = lut_partial_landscape
         self.spi = SPI(1)
-        self.spi.init(baudrate=1000_000)  # TODO: TRY 4000_000
+        # Might need to switch to 1000_000 if having instability
+        self.spi.init(baudrate=4000_000)
         self.dc_pin = Pin(DC_PIN, Pin.OUT)
 
         self.buffer = bytearray(self.height * self.width // 8)
@@ -530,3 +531,5 @@ async def sleepDisplay():
     epd.Clear(0xff)
     await sleep(2)
     epd.sleep()
+
+# run(sleepDisplay())

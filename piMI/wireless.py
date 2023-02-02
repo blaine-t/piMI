@@ -25,7 +25,6 @@ def connectWireless():
     # If improper connection or never reached
     if wlan.status() != 3:
         raise RuntimeError('network connection failed')
-    # Serial out the IP of the device TODO: Remove for final product
     else:
         status = wlan.ifconfig()
         # Return IP

@@ -11,7 +11,7 @@ spoll = poll()
 spoll.register(stdin, POLLIN)
 
 
-previousData = [0,0,0,0,0,0,0,0,0,0]
+previousData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 bootEpoch = 0
 
 

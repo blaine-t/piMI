@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/dev/img/PiMI256.png" height="100">
+  <img src="/dev/img/PiMI256.png" height="128">
 </p>
 
 ## Description
@@ -16,8 +16,8 @@ piMI is a low cost server management interface made with the Raspberry Pi Pico W
 
 - [x] Display (Style graphics and ~~get partial refresh working in landscape~~)
 - [x] HTML (Add graphs and other elements)
-- [x] CSS (Style page)
-- [ ] JS (Properly send data to graphs (Update to support doughnut and bar charts))
-- [ ] Physically wire up LED pwr and rst switches
-- [ ] Install pi and display in case
-- [ ] Create USB internal cable
+- [ ] CSS (Small ChartJS fixes required)
+- [x] JS (Properly send data to graphs (Update to support doughnut and bar charts))
+- [x] Physically wire up LED pwr and rst switches
+- [x] Install pi and display in case
+- [x] Create USB internal cable

@@ -85,7 +85,7 @@ async def main():
     create_task(listen(server))
     # "Loop"
     while True:
-        for sec in range(10):
+        for sec in range(30):
             server.parse_all()
             await sleep(1)
         previousData, bootEpoch = getData()

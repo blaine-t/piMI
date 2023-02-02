@@ -75,7 +75,7 @@ class WebSocketServer:
             cl.setblocking(True)
             cl.sendall("HTTP/1.1 503 Too many connections\n\n")
             cl.sendall("\n")
-            # TODO: Make sure the data is sent before closing
+            # TODO: Make sure the data is sent before closing (Not biggest concern)
             sleep(0.1)
             cl.close()
             return
