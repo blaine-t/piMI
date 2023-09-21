@@ -28,3 +28,7 @@ piMI is a low cost server management interface made with the Raspberry Pi Pico W
 
       <img src="https://avatars.githubusercontent.com/u/72430668" height="20"> [**G2-Games**](https://github.com/G2-Games) - Frontend Dev <br />
       <img src="https://avatars.githubusercontent.com/u/108963625" height="20"> [**blaine-t**](https://github.com/blaine-t) - Backend Dev
+
+## Preview
+
+![image](https://github.com/blaine-t/piMI/assets/108963625/21ab3b00-3cf7-4096-95b6-9ef6f72fbcea)
